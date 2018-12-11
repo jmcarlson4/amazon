@@ -44,18 +44,41 @@ function products() {
                 name: "item",
                 type: "input",
                 message: "How many would you like?"
-            },
-            // ]).then(function(response){
-            //     var chosenItem;
-            //     for (var i = 0; i < results.length; i++){
-            //         if(results[i].product_name === response.choices){
-            //             chosenItem = results[i];
-            //         }
-            //         }
+            }
+        ]).then(function (response) {
+            var chosenItem;
+
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].product_name === response.products) {
+                    chosenItem = results[i];
+                }
+            }
+            if (chosenItem.stock_quanitity >= response.item) {
+                connection.query("UPDATE bamazon SET ? WHERE ?",
+                    [
+                        {
+                            product_name: response.products
+                        },
+                        {
+                            stock_quanitity: response.item
+                        }
+                    ],
+                    function err() {
+                        if (err) throw err;
+                        console.log("Your order has been placed!");
+                    }
+                );
+                }
+                else {
+                    console.log("Out of Stock!");
+                }
+            });
+
+            connection.end();
 
 
-            connection.end(),
-    
-        // )}    
-])
-})}
+
+
+
+        });
+    }
