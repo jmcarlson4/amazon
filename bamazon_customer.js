@@ -19,6 +19,7 @@ connection.connect(function (err) {
     //query2();
 });
 
+
 function products() {
     connection.query("SELECT * FROM products", function (err, results) {
         if (err) throw err;
@@ -26,17 +27,22 @@ function products() {
         // console.log(results[0].item_id);
         // console.log(JSON.stringify(results, null, 2));
         // console.log(results.price);
+        var items = [];
+        function inventory() {
+
+
+            for (var i = 0; i < results.length; i++) {
+                items.push(results[i].product_name + " " + results[i].price + " " + results[i].item_id);
+            }
+
+        }
+        inventory();
+        console.log(items);
         inquirer.prompt([
             {
-                type: "rawlist",
+                type: "input",
                 name: "products",
-                choices: function () {
-                    var items = [];
-                    for (var i = 0; i < results.length; i++) {
-                        items.push(results[i].product_name);
-                    }
-                    return items;
-                },
+
                 message: "Which item would you like to purchase?"
             },
 
@@ -46,39 +52,55 @@ function products() {
                 message: "How many would you like?"
             }
         ]).then(function (response) {
-            var chosenItem;
+            //console.log(response.item);
+            console.log(response.products);
+            //var chosenItem;
 
-            for (var i = 0; i < results.length; i++) {
-                if (results[i].product_name === response.products) {
-                    chosenItem = results[i];
-                }
-            }
-            if (chosenItem.stock_quanitity >= response.item) {
-                connection.query("UPDATE bamazon SET ? WHERE ?",
+            // for (var i = 0; i < results.length; i++) {
+            //    // console.log(results);
+            //     if (results[i].product_name === response.products) {
+            //         chosenItem = results[i];
+            //     }
+            // }
+            console.log(results[response.products - 1]);
+            if (results[response.products - 1].stock_quanitity >= response.item) {
+
+                console.log("HELP!");
+                connection.query("UPDATE products SET ? WHERE ?",
                     [
                         {
-                            product_name: response.products
+                            stock_quanitity: response.item
                         },
                         {
-                            stock_quanitity: response.item
+                            item_id: response.products
                         }
                     ],
-                    function err() {
+                    function err(err) {
                         if (err) throw err;
+                        //console.log("hello" ,err);
+
+                        // need function to calculate order total
+                        //console.log("Your total is " + price);
+
+
+                        //function price(){
+                        //connection.query(SELECT * FROM bamazon, function(err, results){
+                        //response.item *)};
+
+                        //);
                         console.log("Your order has been placed!");
-                    }
-                );
-                }
-                else {
-                    console.log("Out of Stock!");
-                }
-            });
-
-            connection.end();
-
-
-
-
-
+                    });
+            }
+            else {
+                console.log("Out of Stock!");
+            }
         });
-    }
+
+        //connection.end();
+
+
+
+
+
+    });
+}
