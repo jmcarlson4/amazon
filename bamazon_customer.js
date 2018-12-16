@@ -16,28 +16,27 @@ connection.connect(function (err) {
     if (err) throw err;
     //console.log("connected as id " + connection.threadId);
     products();
-    //query2();
 });
 
 
 function products() {
-    connection.query("SELECT * FROM products", function (err, results) {
+
+        connection.query("SELECT * FROM products", function (err, results) {
         if (err) throw err;
-        //console.log(results);
-        // console.log(results[0].item_id);
-        // console.log(JSON.stringify(results, null, 2));
-        // console.log(results.price);
+        
         var items = [];
         function inventory() {
-
 
             for (var i = 0; i < results.length; i++) {
                 items.push(results[i].product_name + " " + results[i].price + " " + results[i].item_id);
             }
+            
 
         }
         inventory();
         console.log(items);
+
+       
         inquirer.prompt([
             {
                 type: "input",
@@ -52,55 +51,41 @@ function products() {
                 message: "How many would you like?"
             }
         ]).then(function (response) {
-            //console.log(response.item);
-            console.log(response.products);
-            //var chosenItem;
+            
+            var price = ("HELP!", results[response.products - 1].price * response.item);
+            // console.log("help0", price);
+            // console.log("HELP1", results);
+            // console.log("help2",response.products);
+            // console.log("help3", results[response.products - 1].price);
+           
 
-            // for (var i = 0; i < results.length; i++) {
-            //    // console.log(results);
-            //     if (results[i].product_name === response.products) {
-            //         chosenItem = results[i];
-            //     }
-            // }
-            console.log(results[response.products - 1]);
+            //console.log(results[response.products - 1]);
             if (results[response.products - 1].stock_quanitity >= response.item) {
+                console.log("Your order has been placed!");
+                console.log("Your order total is $ " + price);
+               // console.log(price);
 
-                console.log("HELP!");
                 connection.query("UPDATE products SET ? WHERE ?",
                     [
                         {
-                            stock_quanitity: response.item
+                            stock_quanitity: results[response.products - 1].stock_quanitity - response.item
                         },
                         {
-                            item_id: response.products
+                            item_id: results[response.products - 1].item_id
                         }
                     ],
+                    
+
                     function err(err) {
                         if (err) throw err;
-                        //console.log("hello" ,err);
-
-                        // need function to calculate order total
-                        //console.log("Your total is " + price);
-
-
-                        //function price(){
-                        //connection.query(SELECT * FROM bamazon, function(err, results){
-                        //response.item *)};
-
-                        //);
-                        console.log("Your order has been placed!");
-                    });
-            }
-            else {
-                console.log("Out of Stock!");
-            }
+                    }
+                );
+            } else {
+                console.log("Sorry Out of Stock!"); 
+            };
         });
 
-        //connection.end();
-
-
-
-
-
     });
+
+    //connection.end();
 }
